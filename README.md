@@ -8,8 +8,8 @@ Use it to access your files from anywhere, with a tablet, an e-reader, a phone o
 
 ```
 git clone --depth=1 https://github.com/Sidirius/docker-pi-ubooquity.git 
-cd ubooquity
-docker build --rm=true -t ubooquity . 
+cd docker-pi-ubooquity
+docker build --rm=true -t docker-pi-ubooquity . 
 ```
 
 ## Volumes:

@@ -54,25 +54,26 @@ RUN mkdir /tmp/jna-4.0.0 && \
 	java -jar jna.jar
 
 ### Install and Configure Circus
-RUN pip --no-input install --upgrade pip
-RUN pip --no-input install circus;\
-    pip --no-input install envtpl
-RUN mkdir /etc/circus.d /etc/setup.d
+#RUN pip --no-input install --upgrade pip
+#RUN pip --no-input install circus;\
+#    pip --no-input install envtpl
+#RUN mkdir /etc/circus.d /etc/setup.d
 
 ### Install Ubooquity
-RUN wget http://vaemendis.net/ubooquity/downloads/Ubooquity-1.6.0.zip && unzip Ubooquity-1.6.0.zip -d UbooquityInstall
+RUN wget http://vaemendis.net/ubooquity/downloads/Ubooquity-1.7.6.zip && unzip Ubooquity-1.7.6.zip -d UbooquityInstall
 
 ### Exposed config volume
 VOLUME /config
 
 ### Add config files
-ADD ./files/circus.ini /etc/circus.ini
+#ADD ./files/circus.ini /etc/circus.ini
 ADD ./files/start.sh /start.sh
-ADD ./files/setup.d/Ubooquity /etc/setup.d/Ubooquity
-ADD ./files/circus.d/Ubooquity.ini.tpl /etc/circus.d/Ubooquity.ini.tpl
+ADD ./files/supervisord.conf /supervisord.conf
+#ADD ./files/setup.d/Ubooquity /etc/setup.d/Ubooquity
+#ADD ./files/circus.d/Ubooquity.ini.tpl /etc/circus.d/Ubooquity.ini.tpl
 
 ### change ownership for unRAID
-RUN chown -R nobody:users /UbooquityInstall
+#RUN chown -R nobody:users /UbooquityInstall
 
 ### Expose default Ubooquity port
 EXPOSE 8085

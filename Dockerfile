@@ -7,7 +7,7 @@ MAINTAINER Sven Hartmann <sid@sh87.net>
 ENV DEBIAN_FRONTEND noninteractive
 ENV HOME /root
 RUN echo "deb-src http://mirrordirector.raspbian.org/raspbian/ wheezy main contrib non-free rpi" | tee --append /etc/apt/sources.list
-RUN apt-get update && apt-get clean
+RUN apt-get update -y --force-yes && apt-get upgrade -y --force-yes && apt-get dist-upgrade -y --force-yes && apt-get clean
 
 ### Set locale to UTF-8
 ENV LANGUAGE en_US.UTF-8
@@ -15,11 +15,6 @@ ENV LANG en_US.UTF-8
 RUN locale-gen en_US en_US.UTF-8
 RUN update-locale LANG=en_US.UTF-8
 RUN dpkg-reconfigure locales
-
-### Set user nobody to uid and gid of unRAID, uncomment for unRAID
-RUN usermod -u 99 nobody
-RUN usermod -g 100 nobody
-RUN usermod -s /bin/bash nobody
 
 ### Update
 RUN apt-get install -y apt-utils
@@ -31,7 +26,7 @@ RUN apt-get install -y screen nano htop bmon wget curl
 RUN mkdir -p /var/run/sshd
 RUN chmod 755 /var/run/sshd
 RUN mkdir -p /var/log/supervisor
-RUN apt-get -y upgrade && apt-get clean
+RUN apt-get clean
 
 ### Install Java 8 and JNA
 RUN echo "deb http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main" | tee /etc/apt/sources.list.d/webupd8team-java.list
@@ -53,12 +48,6 @@ RUN mkdir /tmp/jna-4.0.0 && \
 	ln -s jna-platform-4.0.0.jar jna-platform.jar && \
 	java -jar jna.jar
 
-### Install and Configure Circus
-#RUN pip --no-input install --upgrade pip
-#RUN pip --no-input install circus;\
-#    pip --no-input install envtpl
-#RUN mkdir /etc/circus.d /etc/setup.d
-
 ### Install Ubooquity
 RUN cd /
 RUN wget http://vaemendis.net/ubooquity/downloads/Ubooquity-1.7.6.zip && unzip Ubooquity-1.7.6.zip -d UbooquityInstall
@@ -67,17 +56,11 @@ RUN wget http://vaemendis.net/ubooquity/downloads/Ubooquity-1.7.6.zip && unzip U
 VOLUME /config
 
 ### Add config files
-#ADD ./files/circus.ini /etc/circus.ini
 ADD ./files/start.sh /start.sh
+RUN chmod +x /start.sh
 ADD ./files/supervisord.conf /supervisord.conf
-#ADD ./files/setup.d/Ubooquity /etc/setup.d/Ubooquity
-#ADD ./files/circus.d/Ubooquity.ini.tpl /etc/circus.d/Ubooquity.ini.tpl
-
-### change ownership for unRAID
-#RUN chown -R nobody:users /UbooquityInstall
 
 ### Expose default Ubooquity port
 EXPOSE 8085
 ### Make start script executable and default command
-RUN chmod +x /start.sh
 ENTRYPOINT ["/start.sh"]

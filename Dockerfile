@@ -1,60 +1,81 @@
-#Ubooquity
-FROM ubuntu:trusty
-MAINTAINER Carlos Hernandez <carlos@techbyte.ca>
+### Ubooquity
+### Pull base image
+FROM resin/rpi-raspbian:wheezy
+MAINTAINER Sven Hartmann <sid@sh87.net>
 
-# Let the container know that there is no tty
+### Install Applications DEBIAN_FRONTEND=noninteractive  --no-install-recommends
 ENV DEBIAN_FRONTEND noninteractive
+ENV HOME /root
+RUN echo "deb-src http://mirrordirector.raspbian.org/raspbian/ wheezy main contrib non-free rpi" | tee --append /etc/apt/sources.list
+RUN apt-get update && apt-get clean
 
-# Set locale to UTF-8
+### Set locale to UTF-8
 ENV LANGUAGE en_US.UTF-8
 ENV LANG en_US.UTF-8
 RUN locale-gen en_US en_US.UTF-8
 RUN update-locale LANG=en_US.UTF-8
 RUN dpkg-reconfigure locales
 
-# Set user nobody to uid and gid of unRAID, uncomment for unRAID
+### Set user nobody to uid and gid of unRAID, uncomment for unRAID
 RUN usermod -u 99 nobody
 RUN usermod -g 100 nobody
 RUN usermod -s /bin/bash nobody
 
-# Update ubuntu
-RUN apt-mark hold initscripts udev plymouth mountall;\
-    echo 'APT::Get::Assume-Yes "true";' > /etc/apt/apt.conf.d/90forceyes;\
-    echo 'deb http://archive.ubuntu.com/ubuntu trusty main universe restricted' > /etc/apt/sources.list;\
-    echo 'deb http://archive.ubuntu.com/ubuntu trusty-updates  main universe restricted' >> /etc/apt/sources.list;\
-    apt-get update;\
-    echo exit 101 > /usr/sbin/policy-rc.d && chmod +x /usr/sbin/policy-rc.d;\
-    dpkg-divert --local --rename --add /sbin/initctl;\
-    ln -sf /bin/true /sbin/initctl;\
-    apt-get -y upgrade && apt-get clean
+### Update
+RUN apt-get install -y apt-utils
+RUN apt-get install -y openssh-server supervisor git
+RUN apt-get install -y python python-crypto python-pycurl python-imaging python-pip python-tornado python-zmq python-psutil
+RUN apt-get install -y zip unzip
+RUN apt-get install -y dpkg-dev
+RUN apt-get install -y screen nano htop bmon wget curl
+RUN mkdir -p /var/run/sshd
+RUN chmod 755 /var/run/sshd
+RUN mkdir -p /var/log/supervisor
+RUN apt-get -y upgrade && apt-get clean
 
-# Install dependencies
-RUN apt-get install -qy --force-yes openjdk-7-jre-headless wget python-pip unzip python-tornado python-zmq python-psutil \
-    && apt-get clean
+### Install Java 8 and JNA
+RUN echo "deb http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main" | tee /etc/apt/sources.list.d/webupd8team-java.list
+RUN echo "deb-src http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main" | tee -a /etc/apt/sources.list.d/webupd8team-java.list
+RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys EEA14886
+RUN apt-get update -y
+RUN echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | sudo /usr/bin/debconf-set-selections
+RUN apt-get install -y --force-yes oracle-java8-installer
+RUN apt-get install -y --force-yes oracle-java8-set-default
+RUN mkdir /tmp/jna-4.0.0 && \
+	cd /tmp/jna-4.0.0 && \
+	wget --no-check-certificate 'https://maven.java.net/content/repositories/releases/net/java/dev/jna/jna/4.0.0/jna-4.0.0.jar' && \
+	wget --no-check-certificate 'https://maven.java.net/content/repositories/releases/net/java/dev/jna/jna-platform/4.0.0/jna-platform-4.0.0.jar' && \
+	cd /tmp/jna-4.0.0 && \
+	cd /usr/share/java && \
+	[ -f jna.jar ] && rm jna.jar || \
+	cp /tmp/jna-4.0.0/*.jar . && \
+	ln -s jna-4.0.0.jar jna.jar && \
+	ln -s jna-platform-4.0.0.jar jna-platform.jar && \
+	java -jar jna.jar
 
-# Install and Configure Circus
+### Install and Configure Circus
 RUN pip --no-input install --upgrade pip
 RUN pip --no-input install circus;\
     pip --no-input install envtpl
 RUN mkdir /etc/circus.d /etc/setup.d
 
-# Install Ubooquity
+### Install Ubooquity
 RUN wget http://vaemendis.net/ubooquity/downloads/Ubooquity-1.6.0.zip && unzip Ubooquity-1.6.0.zip -d UbooquityInstall
 
-# Exposed config volume
+### Exposed config volume
 VOLUME /config
 
-# Add config files
+### Add config files
 ADD ./files/circus.ini /etc/circus.ini
 ADD ./files/start.sh /start.sh
 ADD ./files/setup.d/Ubooquity /etc/setup.d/Ubooquity
 ADD ./files/circus.d/Ubooquity.ini.tpl /etc/circus.d/Ubooquity.ini.tpl
 
-# change ownership for unRAID
+### change ownership for unRAID
 RUN chown -R nobody:users /UbooquityInstall
 
-# Expose default Ubooquity port
+### Expose default Ubooquity port
 EXPOSE 8085
-# Make start script executable and default command
+### Make start script executable and default command
 RUN chmod +x /start.sh
 ENTRYPOINT ["/start.sh"]

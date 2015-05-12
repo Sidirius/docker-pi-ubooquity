@@ -60,6 +60,7 @@ RUN mkdir /tmp/jna-4.0.0 && \
 #RUN mkdir /etc/circus.d /etc/setup.d
 
 ### Install Ubooquity
+RUN cd /
 RUN wget http://vaemendis.net/ubooquity/downloads/Ubooquity-1.7.6.zip && unzip Ubooquity-1.7.6.zip -d UbooquityInstall
 
 ### Exposed config volume

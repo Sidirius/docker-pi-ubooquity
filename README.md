@@ -7,7 +7,7 @@ Use it to access your files from anywhere, with a tablet, an e-reader, a phone o
 ## Manual build:
 
 ```
-git clone --depth=1 https://github.com/Sidirius/docker-pi-ubooquity.git 
+git clone https://github.com/Sidirius/docker-pi-ubooquity.git 
 cd docker-pi-ubooquity
 docker build --rm -t sidirius/docker-pi-ubooquity . 
 ```

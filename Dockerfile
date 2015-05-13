@@ -44,13 +44,15 @@ RUN mkdir /tmp/jna-4.0.0 && \
 ### Install Ubooquity
 RUN cd /
 RUN wget http://vaemendis.net/ubooquity/downloads/Ubooquity-1.7.6.zip && unzip Ubooquity-1.7.6.zip -d UbooquityInstall
-
-### Exposed config volume
-VOLUME /config
+RUN mkdir -p /ubooquity
+RUN mv /UbooquityInstall/* /ubooquity/
 
 ### Add config files
 ADD ./files/start.sh /start.sh
 RUN chmod +x /start.sh
+
+### Exposed config volume
+VOLUME /config
 
 ### Expose default Ubooquity port
 EXPOSE 8085

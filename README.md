@@ -16,7 +16,7 @@ docker build --rm -t sidirius/docker-pi-ubooquity .
 
 #### `/config`
 
-Location of configurations files, logs, and jar file of Ubooquity.
+Location of configurations files, logs, and theme files.
 
 ### `/media`
 
@@ -36,6 +36,6 @@ Port to be used by Ubooquity default port is 8085.
 ## Docker run command:
 
 ```
-docker run --name Ubooquity -d -p 8085:8085 -v /*Ubooquity_cofing_dir*:/config -v /*your_media_location*:/media sidirius/docker-pi-ubooquity
+docker run --name ubooquity -d -p 8085:8085 -v /*ubooquity_cofing_dir*:/config -v /*your_media_location*:/media sidirius/docker-pi-ubooquity
 
 ```

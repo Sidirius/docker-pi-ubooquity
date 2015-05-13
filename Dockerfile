@@ -11,7 +11,7 @@ RUN apt-get update -y --force-yes && apt-get upgrade -y --force-yes && apt-get d
 
 ### Update
 RUN apt-get install -y apt-utils
-RUN apt-get install -y openssh-server supervisor git
+RUN apt-get install -y openssh-server git
 RUN apt-get install -y python python-crypto python-pycurl python-imaging python-pip python-tornado python-zmq python-psutil
 RUN apt-get install -y zip unzip
 RUN apt-get install -y dpkg-dev
@@ -51,7 +51,6 @@ VOLUME /config
 ### Add config files
 ADD ./files/start.sh /start.sh
 RUN chmod +x /start.sh
-ADD ./files/supervisord.conf /supervisord.conf
 
 ### Expose default Ubooquity port
 EXPOSE 8085

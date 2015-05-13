@@ -9,13 +9,6 @@ ENV HOME /root
 RUN echo "deb-src http://mirrordirector.raspbian.org/raspbian/ wheezy main contrib non-free rpi" | tee --append /etc/apt/sources.list
 RUN apt-get update -y --force-yes && apt-get upgrade -y --force-yes && apt-get dist-upgrade -y --force-yes && apt-get clean
 
-### Set locale to UTF-8
-ENV LANGUAGE en_US.UTF-8
-ENV LANG en_US.UTF-8
-RUN locale-gen en_US en_US.UTF-8
-RUN update-locale LANG=en_US.UTF-8
-RUN dpkg-reconfigure locales
-
 ### Update
 RUN apt-get install -y apt-utils
 RUN apt-get install -y openssh-server supervisor git

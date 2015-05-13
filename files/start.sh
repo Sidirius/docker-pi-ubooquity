@@ -1,17 +1,10 @@
 #!/bin/sh
 
-echo "--> start.sh script running..."
+screen -dmS ssh /usr/sbin/sshd -D
+if [ -n $UBOOQUITY_PORT ]; then UBOOQUITY_PORT="8085"; fi
+cd /UbooquityInstall
+screen -dmS ubooquity java -jar Ubooquity.jar -port $UBOOQUITY_PORT -webadmin -headless 
 
-mkdir -p /config/clogs
-touch /config/clogs/Ubooquity.log
-
-chown -R nobody:users /config/clogs
-chmod 666 /config/clogs/*
-
-
-run-parts -v  --report /etc/setup.d
-
-envtpl /etc/circus.d/Ubooquity.ini.tpl --allow-missing
-
-echo "---> Starting circus..."
-exec /usr/local/bin/circusd /etc/circus.ini
+while [ 1 ]; do
+    /bin/bash
+done
